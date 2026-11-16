@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _CONFIG_CACHE: dict[str, Any] = {}
-_PROJECT_ROOT = Path(__file__).resolve().parents[3]  # .../Quality_Inspection
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]  # .../Quality_Inspection
 
 
 def _resolve_path(path_str: str) -> Path:

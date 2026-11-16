@@ -6,8 +6,8 @@
 # ---------------------------------------------------------------------------
 
 # --- NEU-DET (primary detection dataset) -----------------------------------
-# 1800 images, 4 defect classes, Pascal-VOC XML annotations.
-# Source: https://github.com/xpwu95/NEU-DET
+# 1800 images, 6 defect classes, Pascal-VOC XML annotations.
+# Source: https://github.com/siddhartamukherjee/NEU-DET-Steel-Surface-Defect-Detection
 neu_det:
   enabled: true
   raw_dir: data/raw/neu_det
@@ -15,8 +15,10 @@ neu_det:
   classes:
     - crazing
     - inclusion
-    - pitted
-    - scratch
+    - patches
+    - pitted_surface
+    - rolled-in_scale
+    - scratches
   image_size: [200, 200]                 # native resolution of the dataset
   train_val_test_split: [0.7, 0.15, 0.15]
   split_seed: 42

@@ -12,7 +12,7 @@ Image → Preprocess → Detect Component → Detect Defect (YOLO)
 
 ## Current Status
 
-**Phase: V0 — Environment & Project Foundation**
+**Phase: V1 — Dataset Preparation Complete ✅**
 
 | Component | Status |
 |-----------|--------|
@@ -21,7 +21,12 @@ Image → Preprocess → Detect Component → Detect Defect (YOLO)
 | Project structure | ✅ Created |
 | Configuration system | ✅ YAML configs in `configs/` |
 | Logging | ✅ Structured logging in `src/utils/logging.py` |
-| Git | ⏳ Not initialized yet |
+| Git | ✅ Initialized |
+| NEU-DET Download | ✅ 1770 images + annotations |
+| NEU-DET Conversion (VOC→YOLO) | ✅ 6 classes, 4126 objects |
+| Train/Val/Test Split | ✅ 1239 / 265 / 266 (by filename) |
+| Dataset exploration notebook | ✅ `notebooks/01_dataset_exploration.ipynb` |
+| Dataset inventory report | ✅ `reports/dataset_inventory.md` |
 
 ## Quick Start
 
