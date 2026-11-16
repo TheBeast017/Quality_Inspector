@@ -33,6 +33,13 @@ models/*.onnx
 models/*.pth
 experiments/runs/
 experiments/mlruns/
+mlflow.db
+yolov8n.pt
+*.pt
+
+# --- Generated reports -------------------------------------------------------
+reports/dataset_samples/
+reports/*.md
 
 # --- Secrets ---------------------------------------------------------------
 .env
