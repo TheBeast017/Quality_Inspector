@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Quality decision rules (PASS / REJECT)
+#
+# These are CONFIGURABLE thresholds, NOT universal engineering standards.
+# They are derived from three sources, kept separate on purpose:
+#
+#   1. DATASET-DERIVED   - observed from the training set (e.g. typical
+#                         defect area distribution for each class).
+#   2. EXPERIMENTAL      - set by the engineer during development and recorded
+#                         in experiments/ with the reasoning.
+#   3. EXPERT-DEFINED    - supplied by a domain expert. Currently EMPTY until
+#                         an expert review happens. We do NOT invent these.
+#
+# Never claim a value here is an industry standard unless it is sourced.
+# ---------------------------------------------------------------------------
+
+# --- Per-component acceptance criteria -------------------------------------
+# Each component type can have its own rule set. Add entries as new
+# component classes are introduced.
+components:
+  steel_sheet:
+    description: "Flat steel sheet with surface defects (NEU-DET / GC10-DET)"
+    max_defect_area_percent: 5.0     # EXPERIMENTAL: % of component area
+    max_defect_count: 3              # EXPERIMENTAL
+    allowed_defect_types: []         # empty = all types considered
+    severity_limit: moderate         # reject if severity >= this level
+
+# --- Severity thresholds ----------------------------------------------------
+# These map measured defect properties onto the severity scale.
+# Scale: NONE < MINOR < MODERATE < SEVERE < CRITICAL
+severity:
+  # Area-based (percentage of component area)
+  minor_max_area_percent: 1.0       # EXPERIMENTAL
+  moderate_max_area_percent: 3.0    # EXPERIMENTAL
+  severe_max_area_percent: 8.0      # EXPERIMENTAL
+  # above 8% -> CRITICAL
+
+  # Confidence floor: a detection below this confidence is treated as noise
+  # and does not contribute to severity.
+  min_confidence: 0.25
+
+  # Count-based: many small defects can equal one large defect
+  defects_for_moderate: 3
+  defects_for_severe: 6
+
+# --- Decision logic ---------------------------------------------------------
+decision:
+  # If ANY single defect reaches CRITICAL severity -> immediate REJECT.
+  reject_on_critical: true
+  # If total defect area exceeds the component limit -> REJECT.
+  reject_on_area_exceeded: true
+  # If defect count exceeds the component limit -> REJECT.
+  reject_on_count_exceeded: true
+  # If any defect type is in the component's forbidden list -> REJECT.
+  reject_on_forbidden_type: true
+  # Otherwise PASS.
+  default: pass
+
+# --- Uncertainty handling ---------------------------------------------------
+# A low average detection confidence does NOT automatically mean REJECT.
+# It is reported as an "uncertain" inspection for human review instead.
+uncertainty:
+  enabled: true
+  low_confidence_threshold: 0.4
+  action: "flag_for_review"

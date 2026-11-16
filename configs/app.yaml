@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Application runtime configuration
+#
+# Secrets (DB password, JWT, etc.) come from the environment / .env file and
+# are referenced here as ${ENV_VAR} placeholders. They are NEVER written in
+# plain text in this file.
+# ---------------------------------------------------------------------------
+
+app:
+  name: "Industrial AI Inspection"
+  version: "0.1.0"
+  log_level: INFO                    # DEBUG | INFO | WARNING | ERROR
+  host: "0.0.0.0"
+  port: 8000
+
+paths:
+  project_root: "."                  # resolved relative to this file's parent
+  data_dir: "data"
+  models_dir: "models"
+  reports_dir: "reports"
+  experiments_dir: "experiments"
+  logs_dir: "logs"
+
+database:
+  # The actual connection string is built from .env values at runtime.
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  name: ${DB_NAME}
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  pool_size: 5
+  echo_sql: false
+
+mlflow:
+  tracking_uri: ${MLFLOW_TRACKING_URI:-./experiments/mlruns}
+  experiment_name: "industrial-inspection"
+
+inference:
+  device: auto                        # cuda | cpu | auto
+  batch_size: 1
+  return_masks: true
+  max_image_size: 1024               # images are resized so the longest edge
+                                     # never exceeds this before inference.

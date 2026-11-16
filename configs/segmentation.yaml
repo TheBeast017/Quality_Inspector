@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------------------
+# Segmentation configuration (YOLO segmentation)
+#
+# Why YOLO-seg over U-Net or Mask R-CNN for V3:
+#   - YOLO returns boxes AND masks in a single forward pass, so the detection
+#     and segmentation outputs stay aligned by construction.
+#   - It reuses the same training harness as detection (one code path).
+#   - U-Net / Mask R-CNN would need a separate training + inference stack and
+#     a separate mask-to-box alignment step, with no clear accuracy gain on
+#     small steel defects at 200x200 native resolution.
+#   - We keep U-Net as a documented fallback if per-class IoU is poor.
+# ---------------------------------------------------------------------------
+
+model:
+  name: yolov8m-seg.pt
+  task: segment
+  image_size: 640
+
+training:
+  epochs: 50
+  batch_size: 8
+  imgsz: 640
+  lr0: 0.01
+  patience: 10
+  device: auto
+  amp: true
+  workers: 4
+  seed: 42
+
+evaluation:
+  conf_threshold: 0.25
+  iou_threshold: 0.5
+  # Metrics reported: IoU, Dice, per-class IoU.
+  save_masks: true

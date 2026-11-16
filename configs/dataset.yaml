@@ -1,0 +1,80 @@
+# ---------------------------------------------------------------------------
+# Dataset configuration
+#
+# Every path is RELATIVE TO THE PROJECT ROOT (the directory that contains
+# this file's parent). The loader in src/utils/config.py resolves them.
+# ---------------------------------------------------------------------------
+
+# --- NEU-DET (primary detection dataset) -----------------------------------
+# 1800 images, 4 defect classes, Pascal-VOC XML annotations.
+# Source: https://github.com/xpwu95/NEU-DET
+neu_det:
+  enabled: true
+  raw_dir: data/raw/neu_det
+  annotation_format: pascal_voc          # <annotation><size><object><bndbox>
+  classes:
+    - crazing
+    - inclusion
+    - pitted
+    - scratch
+  image_size: [200, 200]                 # native resolution of the dataset
+  train_val_test_split: [0.7, 0.15, 0.15]
+  split_seed: 42
+  # Split is made by IMAGE FILENAME, never by class, to avoid leakage.
+
+# --- GC10-DET (secondary detection dataset) -------------------------------
+# 2184 images, 10 steel-surface defect classes, Pascal-VOC XML.
+# Source: https://github.com/CV-TianZhang/GC10-DET
+gc10_det:
+  enabled: false                        # enable after NEU-DET baseline is evaluated
+  raw_dir: data/raw/gc10_det
+  annotation_format: pascal_voc
+  classes:
+    - inclusion
+    - crazing
+    - pitted
+    - scratch
+    - patchy
+    - rolled_scale
+    - rolled_pit
+    - carbon
+    - spot
+    - oil
+  image_size: [256, 256]
+  train_val_test_split: [0.7, 0.15, 0.15]
+  split_seed: 42
+
+# --- MVTec AD (anomaly detection) -----------------------------------------
+# 5304 images across 15 categories. NORMAL samples only during training;
+# defect regions annotated as ground-truth masks for evaluation.
+# Source: https://www.mvtec.com/business_sector/products/mttec/ad
+mvtec_ad:
+  enabled: false                        # enable for the V4 anomaly branch
+  raw_dir: data/raw/mvtec_ad
+  annotation_format: mvtec_mask          # ground/truth/<class>/<defect>/xxx_mask.png
+  categories:
+    - bottle
+    - cable
+    - capsule
+    - grid
+    - hazelnut
+    - leather
+    - metal_nut
+    - pill
+    - screw
+    - tile
+    - toothbrush
+    - transistor
+    - wood
+    - zipper
+    - carpet
+  train_only_normal: true
+  image_size: [1024, 1024]
+  # MVTec ships at 1024x1024; resize per-model at load time.
+
+# --- Global data settings --------------------------------------------------
+data:
+  num_workers: 4
+  seed: 42
+  # Re-verify these hashes after every download so corruption is caught early.
+  verify_checksums: true

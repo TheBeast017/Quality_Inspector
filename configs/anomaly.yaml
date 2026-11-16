@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# Anomaly detection configuration
+#
+# Method: PatchCore (memory-bank approach).
+#
+# Why PatchCore over PaDiM / EfficientAD for V4:
+#   - PatchCore needs NO training epochs: it extracts patch features from the
+#     normal training set once and stores a coresubset in a memory bank.
+#     Training on MVTec AD (5300 images) completes in minutes on CPU.
+#   - PaDiM is simpler (Gaussian per-pixel) but patch-level features give
+#     better localization on small defects.
+#   - EfficientAD is a distillation approach: better accuracy but a student
+#     network to train, heavier, and marginal gain on MVTec. Deferred.
+#   - All three are evaluated and compared in the V11 experiment section.
+# ---------------------------------------------------------------------------
+
+method: patchcore
+
+backbone:
+  name: wide_resnet50_2           # ImageNet-pretrained feature extractor
+  layers: ["layer2", "layer3"]    # patch features at 2 scales
+  patch_size: 3
+  embedding_dim: 1024
+
+coresubset:
+  sampling_ratio: 0.1             # fraction of normal patches kept in the bank
+  seed: 42
+
+scoring:
+  anomaly_score: cosine           # cosine distance to nearest bank neighbour
+  threshold_method: percentile    # percentile | fixed | otsu
+  threshold_percentile: 99.5      # only used when threshold_method == percentile
+
+evaluation:
+  image_metrics: [au roc, pro]    # image-level AUROC, PRO (pixel-region overlap)
+  pixel_metrics: [au roc]
+  save_segmentation: true

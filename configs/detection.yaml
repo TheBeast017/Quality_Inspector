@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# Detection configuration (YOLO)
+# ---------------------------------------------------------------------------
+
+model:
+  name: yolov8m.pt                  # baseline model. Alternatives: n / l / x
+  task: detect                      # detect | segment
+  image_size: 640                   # native NEU-DET is 200x200; 640 is the
+                                    # YOLO canonical input and works well.
+
+training:
+  epochs: 50
+  batch_size: 8                     # RTX 4060 8 GB: 8 at imgsz 640. Reduce
+                                    # to 4 if you hit OOM.
+  imgsz: 640
+  lr0: 0.01
+  lrf: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  warmup_epochs: 3
+  patience: 10                      # early stopping: stop if no mAP50 improvement
+                                    # for this many epochs.
+  device: auto                      # auto picks CUDA if available, else CPU.
+  amp: true                         # mixed precision (fp16) on CUDA.
+  workers: 4
+  seed: 42
+  resume: false
+
+augmentation:
+  # Each flag maps to a YOLO arg. We deliberately EXCLUDE geometric
+  # transforms that would physically distort the defect (e.g. shear),
+  # because a distorted scratch is no longer a scratch.
+  hsv_h: 0.01
+  hsv_s: 0.5
+  hsv_v: 0.3
+  degrees: 0.0                      # no rotation: steel sheet orientation is fixed
+  translate: 0.1
+  scale: 0.5
+  fliplr: 0.5
+  flipud: 0.0
+  mosaic: 1.0
+  mixup: 0.0
+  copy_paste: 0.0
+
+evaluation:
+  conf_threshold: 0.25               # inference confidence floor
+  iou_threshold: 0.5                 # NMS IoU threshold
+  max_det: 300
+  save_json: true
+  plots: true                        # confusion matrix + PR curve

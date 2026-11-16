@@ -1,0 +1,47 @@
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# --- Virtual environments --------------------------------------------------
+.venv/
+venv/
+env/
+
+# --- IDE / OS --------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Data (never commit raw or processed images) --------------------------
+data/raw/
+data/interim/
+data/processed/
+data/external/
+
+# --- Models & experiments (large binaries) --------------------------------
+models/*.pt
+models/*.onnx
+models/*.pth
+experiments/runs/
+experiments/mlruns/
+
+# --- Secrets ---------------------------------------------------------------
+.env
+*.env
+
+# --- Frontend build artifacts ----------------------------------------------
+frontend/node_modules/
+frontend/dist/
+
+# --- Logs ------------------------------------------------------------------
+logs/
+*.log
