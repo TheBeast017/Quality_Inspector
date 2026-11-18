@@ -1,47 +1,46 @@
-version: "3.9"
+version: '3.8'
 
 services:
   postgres:
     image: postgres:16-alpine
     container_name: inspection-db
     environment:
-      POSTGRES_DB: ${DB_NAME:-inspection}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: inspection
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-inspection}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.api
     container_name: inspection-api
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-inspection}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_NAME: inspection
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      USE_SQLITE: "false"
       MLFLOW_TRACKING_URI: http://mlflow:5000
-      API_HOST: 0.0.0.0
-      API_PORT: 8000
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      INFERENCE_DEVICE: cuda
     ports:
       - "8000:8000"
+    volumes:
+      - ./runs:/app/runs:ro
+      - ./configs:/app/configs:ro
+      - ./data:/app/data:ro
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./models:/app/models:ro
-      - ./configs:/app/configs:ro
-      - ./data:/app/data:ro
     deploy:
       resources:
         reservations:
@@ -49,15 +48,6 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-
-  mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
-    container_name: inspection-mlflow
-    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow/mlflow.db --default-artifact-root /mlflow/artifacts
-    ports:
-      - "5000:5000"
-    volumes:
-      - mlflow_data:/mlflow
 
   frontend:
     build:
@@ -68,6 +58,24 @@ services:
       - "3000:80"
     depends_on:
       - api
+
+  mlflow:
+    image: python:3.11-slim
+    container_name: inspection-mlflow
+    command: >
+      sh -c "pip install mlflow psycopg2-binary &&
+             mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri postgresql://postgres:postgres@postgres:5432/mlflow --default-artifact-root /mlflow/artifacts"
+    environment:
+      POSTGRES_DB: mlflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - mlflow_data:/mlflow
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

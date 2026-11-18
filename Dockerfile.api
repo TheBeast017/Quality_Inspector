@@ -1,0 +1,34 @@
+FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    curl \
+    ca-certificates \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf python3.11 /usr/bin/python && ln -sf python3.11 /usr/bin/python3
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cu126 && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /app
+
+COPY src/ ./src/
+COPY api/ ./api/
+COPY configs/ ./configs/
+
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
